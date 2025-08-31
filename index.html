@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEATH NOTE Killer Within 捜査メモ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .graph-container {
+            width: 100%;
+            height: 450px;
+            border: 1px solid #4a5568;
+            border-radius: 0.5rem;
+            touch-action: none;
+            cursor: move;
+        }
+        .node circle {
+            stroke: #e2e8f0;
+            stroke-width: 2px;
+        }
+        .node text {
+            font-size: 16px;
+            font-weight: bold;
+            fill: #f7fafc;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        .link {
+            stroke-opacity: 0.8;
+        }
+        .link.white {
+            stroke: #60a5fa; /* 青色 */
+        }
+        .link.black {
+            stroke: #f87171; /* 赤色 */
+        }
+        select, input[type="text"], input[type="number"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .radio-label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 1rem;
+        }
+        .radio-label input {
+             display: none;
+        }
+        .radio-label span {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background-color: #4a5568;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+        .radio-label input:checked + span {
+            background-color: #4338ca;
+            color: white;
+            font-weight: 600;
+        }
+        #tooltip {
+            position: absolute;
+            visibility: hidden;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-4 antialiased">
+
+    <div id="tooltip"></div>
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-100">DEATH NOTE Killer Within 捜査メモ</h1>
+            <p class="text-gray-400">会議の情報を整理し、キラを追い詰めよう</p>
+        </header>
+
+        <!-- ルール設定セクション -->
+        <div class="bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+            <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">ルール設定</h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium text-gray-300 mb-2">身分証取得</h3>
+                        <div class="flex items-center bg-gray-700 p-2 rounded-lg">
+                            <label class="radio-label"><input type="radio" name="id-theft" value="off" checked><span>OFF</span></label>
+                            <label class="radio-label"><input type="radio" name="id-theft" value="on"><span>ON</span></label>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-300 mb-2">全員デスノートを開く</h3>
+                        <div class="flex items-center bg-gray-700 p-2 rounded-lg">
+                            <label class="radio-label"><input type="radio" name="dn-open" value="off" checked><span>OFF</span></label>
+                            <label class="radio-label"><input type="radio" name="dn-open" value="on"><span>ON</span></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div><h3 class="font-medium text-gray-300 mb-2">L枠</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="l-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="l-role" value="l"> L</label><label class="block"><input type="radio" name="l-role" value="near"> ニア</label></div></div>
+                    <div><h3 class="font-medium text-gray-300 mb-2">キラ枠</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="kira-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="kira-role" value="kira"> キラ</label><label class="block"><input type="radio" name="kira-role" value="x-kira"> Xキラ</label></div></div>
+                    <div><h3 class="font-medium text-gray-300 mb-2">信者枠</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="believer-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="believer-role" value="believer"> キラ信者</label><label class="block"><input type="radio" name="believer-role" value="spokesperson"> 代弁者</label></div></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div><h3 class="font-medium text-gray-300 mb-2">ワタリ</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="watari-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="watari-role" value="off"> なし</label><label class="block"><input type="radio" name="watari-role" value="on"> あり</label></div></div>
+                        <div><h3 class="font-medium text-gray-300 mb-2">局長</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="director-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="director-role" value="off"> なし</label><label class="block"><input type="radio" name="director-role" value="on"> あり</label></div></div>
+                        <div><h3 class="font-medium text-gray-300 mb-2">メロ</h3><div class="bg-gray-700 p-2 rounded-lg space-y-1"><label class="block"><input type="radio" name="mello-role" value="random" checked> ランダム</label><label class="block"><input type="radio" name="mello-role" value="off"> なし</label><label class="block"><input type="radio" name="mello-role" value="on"> あり</label></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 共同タスクセクション -->
+        <div class="bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+             <div class="flex justify-between items-center mb-4 border-b border-gray-600 pb-2">
+                <h2 class="text-xl font-semibold">L/Nからの共同タスク</h2>
+                <div class="flex items-center gap-2">
+                    <label for="joint-task-day-select" class="text-sm font-medium">記録日:</label>
+                    <select id="joint-task-day-select" class="bg-gray-700 border border-gray-600 rounded-md p-1 text-white focus:ring-2 focus:ring-blue-500"></select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><h3 class="text-lg font-medium mb-2">担当捜査員</h3><div class="flex items-center gap-2"><select id="joint-task-player1" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"></select><span class="text-gray-400 font-bold">&</span><select id="joint-task-player2" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"></select></div></div>
+                <div><h3 class="text-lg font-medium mb-2">進捗 (0-3)</h3><div class="flex items-center gap-2"><input type="number" id="joint-task-progress" min="0" max="3" value="0" class="w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white text-center"><div class="flex gap-2 w-full"><button id="set-joint-task" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-2 rounded-md">記録</button></div></div></div>
+            </div>
+            <div id="joint-task-display" class="mt-4 text-center bg-gray-700/50 p-2 rounded-md text-gray-300">共同タスクは設定されていません</div>
+        </div>
+
+        <!-- 捜査状況セクション -->
+        <div class="bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+            <h2 class="text-xl font-semibold mb-2 border-b border-gray-600 pb-2">捜査状況</h2>
+            
+            <div class="flex flex-wrap justify-center gap-x-2 gap-y-2 mb-3" id="day-filter">
+                <label class="radio-label"><input type="radio" name="day-filter" value="all" checked><span>総合</span></label>
+            </div>
+            
+            <div class="flex justify-center gap-2 mb-2">
+                <button id="zoom-in" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-md">拡大 (+)</button>
+                <button id="zoom-out" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-md">縮小 (-)</button>
+                <button id="zoom-reset" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded-md">リセット</button>
+            </div>
+
+            <div id="graph" class="graph-container mb-4 bg-gray-900/50"></div>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-medium mb-3">プレイヤー設定 (短縮名: 3文字まで)</h3>
+                <div id="player-settings" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
+            </div>
+
+
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-medium">証言</h3>
+                    <div class="flex items-center gap-2">
+                        <label for="log-day-select" class="text-sm font-medium">記録日:</label>
+                        <select id="log-day-select" class="bg-gray-700 border border-gray-600 rounded-md p-1 text-white focus:ring-2 focus:ring-blue-500"></select>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 items-center">
+                    <select id="source-select" class="flex-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"></select>
+                    <span class="text-gray-400">が</span>
+                    <select id="target-select" class="flex-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"></select>
+                    <span class="text-gray-400">に</span>
+                    <button id="add-white" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">白出し</button>
+                    <button id="add-black" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md">黒出し</button>
+                </div>
+                 <div class="text-center mt-3 grid grid-cols-2 gap-2"><button id="clear-day-links" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-md">この日の矢印を消す</button><button id="clear-all-links" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">全ての矢印を消す</button></div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-medium mb-3">役職確定</h3>
+                <div class="flex flex-col sm:flex-row gap-3 items-center">
+                    <select id="player-role-select" class="flex-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white"></select>
+                    <select id="role-select" class="flex-1 w-full bg-gray-700 border border-gray-600 rounded-md p-2 text-white">
+                        <option value="Undetermined">未確定</option>
+                        <option value="Kira-Believer">キラ信者</option>
+                        <option value="L">L</option>
+                        <option value="Investigator">捜査員</option>
+                        <option value="Mello">メロ</option>
+                        <option value="Watari">ワタリ</option>
+                        <option value="Director">局長</option>
+                    </select>
+                    <button id="set-role" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">確定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 記録履歴 -->
+        <div id="history-section" class="bg-gray-800 p-4 rounded-lg shadow-lg">
+             <h2 class="text-xl font-semibold mb-4 border-b border-gray-600 pb-2">記録履歴</h2>
+             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                 <div>
+                     <h3 class="text-lg font-medium mb-3">役職確定履歴</h3>
+                     <div id="role-history-list" class="space-y-2 max-h-60 overflow-y-auto">
+                         <p class="text-gray-400">履歴はありません</p>
+                     </div>
+                 </div>
+                 <div>
+                     <h3 class="text-lg font-medium mb-3">共同タスク履歴</h3>
+                     <div id="task-history-list" class="space-y-2 max-h-60 overflow-y-auto">
+                         <p class="text-gray-400">履歴はありません</p>
+                     </div>
+                 </div>
+                  <div>
+                     <h3 class="text-lg font-medium mb-3">証言履歴</h3>
+                     <div id="testimony-history-list" class="space-y-2 max-h-60 overflow-y-auto">
+                         <p class="text-gray-400">履歴はありません</p>
+                     </div>
+                 </div>
+             </div>
+        </div>
+
+    </div>
+
+    <script>
+        const playerIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
+        const nodes = playerIds.map(id => ({ id: id, name: id, role: 'Undetermined' }));
+        let links = [];
+        let nextLinkId = 0;
+        let jointTasks = {};
+        let roleHistory = [];
+        let displayDay = 'all';
+
+        const roleNames = {
+            'Undetermined': '未確定', 'Kira-Believer': 'キラ信者', 'L': 'L',
+            'Investigator': '捜査員', 'Mello': 'メロ', 'Watari': 'ワタリ', 'Director': '局長',
+        };
+        const roleColors = {
+            'Undetermined': '#64748b',   // Gray
+            'Kira-Believer': '#ef4444',  // Red
+            'L': '#3b82f6',              // Blue
+            'Investigator': '#22c55e',  // Green
+            'Mello': '#a855f7',          // Purple
+            'Watari': '#4ade80',         // Light Green
+            'Director': '#38bdf8',       // Light Blue
+        };
+
+        const playerSettingsContainer = document.getElementById('player-settings');
+        const sourceSelect = document.getElementById('source-select');
+        const targetSelect = document.getElementById('target-select');
+        const playerRoleSelect = document.getElementById('player-role-select');
+        const jointTaskPlayer1Select = document.getElementById('joint-task-player1');
+        const jointTaskPlayer2Select = document.getElementById('joint-task-player2');
+        const jointTaskProgressInput = document.getElementById('joint-task-progress');
+        const jointTaskDaySelect = document.getElementById('joint-task-day-select');
+        const logDaySelect = document.getElementById('log-day-select');
+        const setJointTaskButton = document.getElementById('set-joint-task');
+        const jointTaskDisplay = document.getElementById('joint-task-display');
+        const dayFilterContainer = document.getElementById('day-filter');
+        const tooltip = d3.select("#tooltip");
+
+        for (let i = 1; i <= 5; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = `Day ${i}`;
+            jointTaskDaySelect.appendChild(option.cloneNode(true));
+            logDaySelect.appendChild(option.cloneNode(true));
+            const label = document.createElement('label');
+            label.className = 'radio-label';
+            label.innerHTML = `<input type="radio" name="day-filter" value="${i}"><span>Day ${i}</span>`;
+            dayFilterContainer.appendChild(label);
+        }
+
+        function initializePlayerUI() {
+            playerSettingsContainer.innerHTML = '';
+            nodes.forEach(node => {
+                const div = document.createElement('div');
+                div.className = "flex items-center space-x-2 bg-gray-700 p-2 rounded-md";
+                const label = document.createElement('label');
+                label.className = "font-bold text-gray-300";
+                label.textContent = node.id + ":";
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = node.name;
+                input.maxLength = 3;
+                input.dataset.id = node.id;
+                input.className = "w-full bg-gray-800 border-transparent rounded-md p-1 text-white text-center";
+                input.addEventListener('input', (e) => {
+                    const targetNode = nodes.find(n => n.id === e.target.dataset.id);
+                    targetNode.name = e.target.value || targetNode.id;
+                    updateSelections();
+                    updateJointTaskDisplay(jointTaskDaySelect.value);
+                    updateHistoryView();
+                });
+                div.appendChild(label);
+                div.appendChild(input);
+                playerSettingsContainer.appendChild(div);
+            });
+            updateSelections();
+        }
+
+        function updateSelections() {
+             const selects = [sourceSelect, targetSelect, playerRoleSelect, jointTaskPlayer1Select, jointTaskPlayer2Select];
+             const currentValues = selects.map(s => s.value);
+             selects.forEach(s => { s.innerHTML = ''; });
+             nodes.forEach(node => {
+                const option = document.createElement('option');
+                option.value = node.id;
+                option.textContent = node.name;
+                selects.forEach(s => s.appendChild(option.cloneNode(true)));
+            });
+            selects.forEach((s, i) => { s.value = currentValues[i] || nodes[i > 2 ? (i-2) : i]?.id });
+            if (targetSelect.value === sourceSelect.value) {
+                targetSelect.value = nodes[1]?.id || nodes[0]?.id;
+            }
+        }
+
+        initializePlayerUI();
+
+        const container = document.getElementById('graph');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const svg = d3.select("#graph").append("svg").attr("width", width).attr("height", height).attr("viewBox", [0, 0, width, height]);
+        svg.append("defs").selectAll("marker").data(["white", "black"]).enter().append("marker").attr("id", d => `arrow-${d}`).attr("viewBox", "0 -5 10 10").attr("refX", 28).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto").append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", d => d === 'white' ? '#60a5fa' : '#f87171');
+        
+        const g = svg.append("g");
+        let link = g.append("g").attr("class", "links").selectAll(".link");
+        let node = g.append("g").attr("class", "nodes").selectAll(".node");
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(90))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .on("tick", ticked);
+            
+        const zoom = d3.zoom().scaleExtent([0.2, 5]).on("zoom", (event) => g.attr("transform", event.transform));
+        svg.call(zoom);
+
+        function updateGraph() {
+            const filteredLinks = displayDay === 'all' ? links : links.filter(l => l.day == displayDay);
+            
+            // Node update
+            node = node.data(nodes, d => d.id);
+            node.exit().remove();
+            const nodeEnter = node.enter().append("g").attr("class", "node");
+
+            nodeEnter.append("circle")
+                .attr("r", 24)
+                .call(drag(simulation));
+            
+            nodeEnter.append("text")
+                .attr("dy", ".35em")
+                .attr("fill", '#f7fafc')
+                .text(d => d.id);
+            
+            node = nodeEnter.merge(node);
+            
+            node.select("circle").attr("fill", d => roleColors[d.role]);
+            
+            node.on("mouseover", (event, d) => {
+                tooltip.style("visibility", "visible").text(`${d.name}: ${roleNames[d.role]}`);
+            })
+            .on("mousemove", (event) => {
+                tooltip.style("top", (event.pageY - 10) + "px").style("left", (event.pageX + 10) + "px");
+            })
+            .on("mouseout", () => {
+                tooltip.style("visibility", "hidden");
+            });
+
+            // Link update
+            link = link.data(filteredLinks, d => d.id);
+            link.exit().remove();
+            link = link.enter().append("line")
+                .attr("class", d => `link ${d.type}`)
+                .attr("stroke-width", 3)
+                .attr("marker-end", d => `url(#arrow-${d.type})`)
+                .merge(link);
+
+            simulation.nodes(nodes);
+            simulation.force("link").links(filteredLinks);
+            simulation.alpha(0.3).restart();
+        }
+
+        function ticked() {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+            node
+                .attr("transform", d => `translate(${d.x},${d.y})`);
+        }
+        
+        function drag(simulation) {
+            function dragstarted(event, d) { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; }
+            function dragged(event, d) { d.fx = event.x; d.fy = event.y; }
+            function dragended(event, d) { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; }
+            return d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended);
+        }
+        
+        document.getElementById('add-white').addEventListener('click', () => addLink('white'));
+        document.getElementById('add-black').addEventListener('click', () => addLink('black'));
+        document.getElementById('set-role').addEventListener('click', setRole);
+        document.getElementById('clear-day-links').addEventListener('click', clearDayLinks);
+        document.getElementById('clear-all-links').addEventListener('click', () => { links = []; updateGraph(); updateHistoryView(); });
+        document.getElementById('zoom-in').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 1.2));
+        document.getElementById('zoom-out').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 0.8));
+        document.getElementById('zoom-reset').addEventListener('click', () => svg.transition().duration(250).call(zoom.transform, d3.zoomIdentity));
+        setJointTaskButton.addEventListener('click', recordJointTask);
+        jointTaskDaySelect.addEventListener('change', (e) => updateJointTaskDisplay(e.target.value));
+
+        dayFilterContainer.addEventListener('change', (e) => {
+            if (e.target.name === 'day-filter') {
+                displayDay = e.target.value;
+                if (displayDay !== 'all') {
+                    jointTaskDaySelect.value = displayDay;
+                    logDaySelect.value = displayDay;
+                }
+                updateJointTaskDisplay(jointTaskDaySelect.value);
+                updateGraph();
+            }
+        });
+
+        function addLink(type) {
+            const sourceId = sourceSelect.value;
+            const targetId = targetSelect.value;
+            const day = logDaySelect.value;
+            if (sourceId === targetId) return;
+            const exists = links.some(l => (l.source.id || l.source) === sourceId && (l.target.id || l.target) === targetId && l.day === day);
+            if (exists) return;
+            links.push({ id: nextLinkId++, source: sourceId, target: targetId, type: type, day: day });
+            updateGraph();
+            updateHistoryView();
+        }
+
+        function setRole() {
+            const playerId = playerRoleSelect.value;
+            const role = document.getElementById('role-select').value;
+           
+            const targetNode = nodes.find(n => n.id === playerId);
+            if (targetNode) {
+                targetNode.role = role;
+                roleHistory = roleHistory.filter(r => r.playerId !== playerId);
+                if (role !== 'Undetermined') {
+                    roleHistory.push({ playerId, role });
+                }
+                updateGraph();
+                updateHistoryView();
+            }
+        }
+        
+        function recordJointTask() {
+            const day = jointTaskDaySelect.value;
+            const p1Id = jointTaskPlayer1Select.value;
+            const p2Id = jointTaskPlayer2Select.value;
+            const progress = jointTaskProgressInput.value;
+            if (p1Id === p2Id) { /* error handling omitted for brevity */ return; }
+            jointTasks[day] = { p1: p1Id, p2: p2Id, progress: progress };
+            updateJointTaskDisplay(day);
+            updateHistoryView();
+        }
+
+        function clearDayLinks() {
+            const day = logDaySelect.value;
+            links = links.filter(l => l.day != day);
+            updateGraph();
+            updateHistoryView();
+        }
+
+        function updateJointTaskDisplay(day) {
+            const task = jointTasks[day];
+            if (task) {
+                const node1 = nodes.find(n => n.id === task.p1);
+                const node2 = nodes.find(n => n.id === task.p2);
+                jointTaskDisplay.textContent = `担当: ${node1.name} & ${node2.name} | 進捗: ${task.progress}/3`;
+                jointTaskPlayer1Select.value = task.p1;
+                jointTaskPlayer2Select.value = task.p2;
+                jointTaskProgressInput.value = task.progress;
+            } else {
+                jointTaskDisplay.textContent = '共同タスクは設定されていません';
+                jointTaskProgressInput.value = 0;
+            }
+        }
+        
+        function updateHistoryView() {
+            const roleHistoryList = document.getElementById('role-history-list');
+            const taskHistoryList = document.getElementById('task-history-list');
+            const testimonyHistoryList = document.getElementById('testimony-history-list');
+            roleHistoryList.innerHTML = '';
+            taskHistoryList.innerHTML = '';
+            testimonyHistoryList.innerHTML = '';
+
+            if (roleHistory.length === 0) {
+                roleHistoryList.innerHTML = '<p class="text-gray-400">履歴はありません</p>';
+            } else {
+                roleHistory.forEach(hist => {
+                    const player = nodes.find(n => n.id === hist.playerId);
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between items-center bg-gray-700/50 p-2 rounded-md";
+                    item.innerHTML = `<span>${player.name}: ${roleNames[hist.role]}</span><button data-player-id="${hist.playerId}" class="delete-role-hist text-red-400 hover:text-red-300">&times;</button>`;
+                    roleHistoryList.appendChild(item);
+                });
+            }
+
+            if (Object.keys(jointTasks).length === 0) {
+                taskHistoryList.innerHTML = '<p class="text-gray-400">履歴はありません</p>';
+            } else {
+                Object.entries(jointTasks).sort((a, b) => a[0] - b[0]).forEach(([day, task]) => {
+                    const p1 = nodes.find(n => n.id === task.p1);
+                    const p2 = nodes.find(n => n.id === task.p2);
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between items-center bg-gray-700/50 p-2 rounded-md";
+                    item.innerHTML = `<span>Day ${day}: ${p1.name} & ${p2.name} (${task.progress}/3)</span><button data-day="${day}" class="delete-task-hist text-red-400 hover:text-red-300">&times;</button>`;
+                    taskHistoryList.appendChild(item);
+                });
+            }
+
+            if (links.length === 0) {
+                 testimonyHistoryList.innerHTML = '<p class="text-gray-400">履歴はありません</p>';
+            } else {
+                [...links].sort((a,b) => a.day - b.day).forEach(link => {
+                    const source = nodes.find(n => n.id === link.source || n.id === link.source.id);
+                    const target = nodes.find(n => n.id === link.target || n.id === link.target.id);
+                    const typeText = link.type === 'white' ? '白' : '黒';
+                    const item = document.createElement('div');
+                    item.className = "flex justify-between items-center bg-gray-700/50 p-2 rounded-md";
+                    item.innerHTML = `<span>Day ${link.day}: ${source.name} → ${target.name} (${typeText})</span><button data-link-id="${link.id}" class="delete-testimony-hist text-red-400 hover:text-red-300">&times;</button>`;
+                    testimonyHistoryList.appendChild(item);
+                });
+            }
+        }
+        
+        document.getElementById('history-section').addEventListener('click', e => {
+            if (e.target.classList.contains('delete-role-hist')) {
+                const playerId = e.target.dataset.playerId;
+                roleHistory = roleHistory.filter(r => r.playerId !== playerId);
+                const player = nodes.find(n => n.id === playerId);
+                if (player) player.role = 'Undetermined';
+                updateGraph();
+                updateHistoryView();
+            }
+            if (e.target.classList.contains('delete-task-hist')) {
+                const day = e.target.dataset.day;
+                delete jointTasks[day];
+                updateJointTaskDisplay(jointTaskDaySelect.value);
+                updateHistoryView();
+            }
+            if (e.target.classList.contains('delete-testimony-hist')) {
+                const linkId = parseInt(e.target.dataset.linkId, 10);
+                links = links.filter(l => l.id !== linkId);
+                updateGraph();
+                updateHistoryView();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            const newWidth = container.clientWidth;
+            svg.attr("width", newWidth).attr("viewBox", [0, 0, newWidth, height]);
+            simulation.force("center", d3.forceCenter(newWidth / 2, height / 2)).alpha(0.3).restart();
+        });
+
+        updateGraph();
+        updateJointTaskDisplay(1);
+        updateHistoryView();
+    </script>
+</body>
+</html>
+
