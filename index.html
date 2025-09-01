@@ -259,56 +259,71 @@
                     <h2 class="text-2xl font-bold text-gray-100">ルール設定</h2>
                 </div>
                 <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">L枠</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="l-role" value="random" checked class="hidden"><span>ランダム</span></label><label class="radio-label"><input type="radio" name="l-role" value="l" class="hidden"><span>L</span></label><label class="radio-label"><input type="radio" name="l-role" value="near" class="hidden"><span>ニア</span></label></div>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">キラ枠</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="kira-role" value="random" checked class="hidden"><span>ランダム</span></label><label class="radio-label"><input type="radio" name="kira-role" value="kira" class="hidden"><span>キラ</span></label><label class="radio-label"><input type="radio" name="kira-role" value="x-kira" class="hidden"><span>Xキラ</span></label></div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">信者人数</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap">
-                                <label class="radio-label"><input type="radio" name="believer-count" value="0" checked class="hidden"><span>0</span></label>
-                                <label class="radio-label"><input type="radio" name="believer-count" value="1" class="hidden"><span>1</span></label>
-                                <label class="radio-label"><input type="radio" name="believer-count" value="2" class="hidden"><span>2</span></label>
-                            </div>
-                        </div>
-                        <div class="md:col-span-2">
-                            <h3 class="font-semibold text-gray-300 mb-3">信者枠</h3>
-                            <div id="believer-role-container" class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap opacity-50">
-                                <label class="radio-label"><input type="radio" name="believer-role" value="random" checked class="hidden" disabled><span>ランダム</span></label>
-                                <label class="radio-label"><input type="radio" name="believer-role" value="believer" class="hidden" disabled><span>キラ信者</span></label>
-                                <label class="radio-label"><input type="radio" name="believer-role" value="spokesperson" class="hidden" disabled><span>代弁者</span></label>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- 基本役職 -->
                     <div>
-                        <h3 class="font-semibold text-gray-300 mb-3">メロ</h3>
-                        <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="mello-role" value="random" checked class="hidden"><span>ランダム</span></label><label class="radio-label"><input type="radio" name="mello-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="mello-role" value="on" class="hidden"><span>あり</span></label></div>
+                        <h3 class="text-lg font-bold text-red-400 mb-4 border-b border-red-400/30 pb-2">基本役職</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">L枠</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="l-role" value="l" class="hidden"><span>L</span></label><label class="radio-label"><input type="radio" name="l-role" value="near" class="hidden"><span>ニア</span></label><label class="radio-label"><input type="radio" name="l-role" value="random" checked class="hidden"><span>ランダム</span></label></div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">キラ枠</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="kira-role" value="kira" class="hidden"><span>キラ</span></label><label class="radio-label"><input type="radio" name="kira-role" value="x-kira" class="hidden"><span>Xキラ</span></label><label class="radio-label"><input type="radio" name="kira-role" value="random" checked class="hidden"><span>ランダム</span></label></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">ワタリ</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="watari-role" value="random" checked class="hidden"><span>ランダム</span></label><label class="radio-label"><input type="radio" name="watari-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="watari-role" value="on" class="hidden"><span>あり</span></label></div>
+
+                    <!-- 追加役職 -->
+                    <div>
+                        <h3 class="text-lg font-bold text-red-400 mb-4 border-b border-red-400/30 pb-2">追加役職</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end mb-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">キラ信者</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap">
+                                    <label class="radio-label"><input type="radio" name="believer-count" value="off" checked class="hidden"><span>なし</span></label>
+                                    <label class="radio-label"><input type="radio" name="believer-count" value="1" class="hidden"><span>1人</span></label>
+                                    <label class="radio-label"><input type="radio" name="believer-count" value="random" class="hidden"><span>ランダム</span></label>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <h4 class="font-semibold text-gray-300 mb-3">キラ信者種類</h4>
+                                <div id="believer-role-container" class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap opacity-50">
+                                    <label class="radio-label"><input type="radio" name="believer-role" value="believer" class="hidden" disabled><span>キラ信者</span></label>
+                                    <label class="radio-label"><input type="radio" name="believer-role" value="spokesperson" checked class="hidden" disabled><span>キラの代弁者</span></label>
+                                    <label class="radio-label"><input type="radio" name="believer-role" value="random" class="hidden" disabled><span>ランダム</span></label>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">局長</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="director-role" value="random" checked class="hidden"><span>ランダム</span></label><label class="radio-label"><input type="radio" name="director-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="director-role" value="on" class="hidden"><span>あり</span></label></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">メロ</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="mello-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="mello-role" value="on" checked class="hidden"><span>1人</span></label><label class="radio-label"><input type="radio" name="mello-role" value="random" class="hidden"><span>ランダム</span></label></div>
+                            </div>
+                            <div class="md:col-start-1">
+                                <h4 class="font-semibold text-gray-300 mb-3">ワタリ</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="watari-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="watari-role" value="on" checked class="hidden"><span>1人</span></label><label class="radio-label"><input type="radio" name="watari-role" value="random" class="hidden"><span>ランダム</span></label></div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">局長</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl gap-2 flex-wrap"><label class="radio-label"><input type="radio" name="director-role" value="off" class="hidden"><span>なし</span></label><label class="radio-label"><input type="radio" name="director-role" value="on" checked class="hidden"><span>1人</span></label><label class="radio-label"><input type="radio" name="director-role" value="random" class="hidden"><span>ランダム</span></label></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-600">
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">身分証取得</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl"><label class="radio-label"><input type="radio" name="id-theft" value="off" checked class="hidden"><span>OFF</span></label><label class="radio-label"><input type="radio" name="id-theft" value="on" class="hidden"><span>ON</span></label></div>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-300 mb-3">全員デスノートを開く</h3>
-                            <div class="flex items-center glass-card p-3 rounded-xl"><label class="radio-label"><input type="radio" name="dn-open" value="off" checked class="hidden"><span>OFF</span></label><label class="radio-label"><input type="radio" name="dn-open" value="on" class="hidden"><span>ON</span></label></div>
+
+                    <!-- ゲーム設定 -->
+                    <div>
+                        <h3 class="text-lg font-bold text-red-400 mb-4 border-b border-red-400/30 pb-2">ゲーム設定</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">身分証取得</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl"><label class="radio-label"><input type="radio" name="id-theft" value="off" checked class="hidden"><span>OFF</span></label><label class="radio-label"><input type="radio" name="id-theft" value="on" class="hidden"><span>ON</span></label></div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-300 mb-3">全員デスノートを開く</h4>
+                                <div class="flex items-center glass-card p-3 rounded-xl"><label class="radio-label"><input type="radio" name="dn-open" value="off" checked class="hidden"><span>OFF</span></label><label class="radio-label"><input type="radio" name="dn-open" value="on" class="hidden"><span>ON</span></label></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -799,11 +814,11 @@
         
         document.querySelectorAll('input[name="believer-count"]').forEach(radio => {
             radio.addEventListener('change', event => {
-                const count = parseInt(event.target.value, 10);
+                const value = event.target.value;
                 const believerRoleContainer = document.getElementById('believer-role-container');
                 const believerRoleRadios = believerRoleContainer.querySelectorAll('input[name="believer-role"]');
                 
-                if (count > 0) {
+                if (value !== 'off') {
                     believerRoleContainer.classList.remove('opacity-50');
                     believerRoleRadios.forEach(r => r.disabled = false);
                 } else {
