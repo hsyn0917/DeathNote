@@ -585,34 +585,34 @@
         const height = container.clientHeight;
         const svg = d3.select("#graph").append("svg").attr("width", width).attr("height", height).attr("viewBox", [0, 0, width, height]);
         
-        // Define arrow markers
+        // Define arrow markers with proper configuration
         const defs = svg.append("defs");
         
         // White arrow marker
         defs.append("marker")
             .attr("id", "arrow-white")
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 45)
-            .attr("refY", 0)
+            .attr("viewBox", "0 0 10 10")
+            .attr("refX", 9)
+            .attr("refY", 3)
             .attr("markerWidth", 6)
             .attr("markerHeight", 6)
             .attr("orient", "auto")
             .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#60a5fa");
+            .attr("d", "M 0 0 L 10 3 L 0 6 z")
+            .style("fill", "#60a5fa");
             
         // Black arrow marker  
         defs.append("marker")
             .attr("id", "arrow-black")
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 45)
-            .attr("refY", 0)
+            .attr("viewBox", "0 0 10 10")
+            .attr("refX", 9)
+            .attr("refY", 3)
             .attr("markerWidth", 6)
             .attr("markerHeight", 6)
             .attr("orient", "auto")
             .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#f87171");
+            .attr("d", "M 0 0 L 10 3 L 0 6 z")
+            .style("fill", "#f87171");
         const g = svg.append("g");
         let link = g.append("g").attr("class", "links").selectAll(".link");
         let node = g.append("g").attr("class", "nodes").selectAll(".node");
@@ -646,16 +646,17 @@
             
             link = link.data(filteredLinks, d => d.id);
             link.exit().remove();
-            link = link.enter().append("line")
+            const linkEnter = link.enter().append("line")
                 .attr("class", d => `link ${d.type}`)
                 .attr("stroke-width", 3)
                 .attr("stroke", d => d.type === 'white' ? '#60a5fa' : '#f87171')
-                .attr("stroke-opacity", 0.9)
-                .attr("marker-end", d => `url(#arrow-${d.type})`)
-                .merge(link);
+                .attr("stroke-opacity", 0.9);
                 
-            // Ensure marker-end is applied to existing links
-            link.attr("marker-end", d => `url(#arrow-${d.type})`);
+            link = linkEnter.merge(link);
+            
+            // Apply marker-end to all links
+            link.attr("marker-end", d => `url(#arrow-${d.type})`)
+                .attr("stroke", d => d.type === 'white' ? '#60a5fa' : '#f87171');
 
             simulation.nodes(nodes);
             simulation.force("link").links(filteredLinks);
@@ -663,7 +664,25 @@
         }
 
         function ticked() {
-            link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+            // Calculate link positions with proper offset for arrows
+            link.each(function(d) {
+                const dx = d.target.x - d.source.x;
+                const dy = d.target.y - d.source.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                
+                if (length > 0) {
+                    // Calculate offset to stop line at edge of target node (radius 40)
+                    const offsetX = (dx / length) * 40;
+                    const offsetY = (dy / length) * 40;
+                    
+                    d3.select(this)
+                        .attr("x1", d.source.x)
+                        .attr("y1", d.source.y)
+                        .attr("x2", d.target.x - offsetX)
+                        .attr("y2", d.target.y - offsetY);
+                }
+            });
+            
             node.attr("transform", d => `translate(${d.x},${d.y})`);
         }
         
@@ -686,9 +705,25 @@
         document.getElementById('set-joint-task').addEventListener('click', recordJointTask);
         document.getElementById('record-execution').addEventListener('click', recordExecution);
         document.getElementById('record-murder').addEventListener('click', recordMurder);
-        document.getElementById('zoom-in').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 1.2));
-        document.getElementById('zoom-out').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 0.8));
-        document.getElementById('zoom-reset').addEventListener('click', () => svg.transition().duration(250).call(zoom.transform, d3.zoomIdentity));
+        document.getElementById('zoom-in').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 1.5));
+        document.getElementById('zoom-out').addEventListener('click', () => svg.transition().duration(250).call(zoom.scaleBy, 0.67));
+        document.getElementById('zoom-reset').addEventListener('click', () => {
+            // Calculate bounds to fit all nodes
+            const nodeBounds = {
+                x: d3.extent(nodes, d => d.x || 0),
+                y: d3.extent(nodes, d => d.y || 0)
+            };
+            
+            const dx = nodeBounds.x[1] - nodeBounds.x[0] + 120; // Add padding
+            const dy = nodeBounds.y[1] - nodeBounds.y[0] + 120; // Add padding
+            const x = (nodeBounds.x[0] + nodeBounds.x[1]) / 2;
+            const y = (nodeBounds.y[0] + nodeBounds.y[1]) / 2;
+            
+            const scale = Math.max(0.3, Math.min(3, 0.8 / Math.max(dx / width, dy / height)));
+            const translate = [width / 2 - scale * x, height / 2 - scale * y];
+            
+            svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        });
         
         recordingDaySelect.addEventListener('change', e => { 
             recordingDay = e.target.value; 
