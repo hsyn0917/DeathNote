@@ -592,31 +592,27 @@
         defs.append("marker")
             .attr("id", "arrow-white")
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 48)
+            .attr("refX", 45)
             .attr("refY", 0)
-            .attr("markerWidth", 10)
-            .attr("markerHeight", 10)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
             .attr("orient", "auto")
-            .attr("markerUnits", "strokeWidth")
             .append("path")
             .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#60a5fa")
-            .attr("stroke", "#60a5fa");
+            .attr("fill", "#60a5fa");
             
         // Black arrow marker  
         defs.append("marker")
             .attr("id", "arrow-black")
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 48)
+            .attr("refX", 45)
             .attr("refY", 0)
-            .attr("markerWidth", 10)
-            .attr("markerHeight", 10)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
             .attr("orient", "auto")
-            .attr("markerUnits", "strokeWidth")
             .append("path")
             .attr("d", "M0,-5L10,0L0,5")
-            .attr("fill", "#f87171")
-            .attr("stroke", "#f87171");
+            .attr("fill", "#f87171");
         const g = svg.append("g");
         let link = g.append("g").attr("class", "links").selectAll(".link");
         let node = g.append("g").attr("class", "nodes").selectAll(".node");
@@ -652,13 +648,14 @@
             link.exit().remove();
             link = link.enter().append("line")
                 .attr("class", d => `link ${d.type}`)
-                .attr("stroke-width", 4)
+                .attr("stroke-width", 3)
+                .attr("stroke", d => d.type === 'white' ? '#60a5fa' : '#f87171')
+                .attr("stroke-opacity", 0.9)
                 .attr("marker-end", d => `url(#arrow-${d.type})`)
                 .merge(link);
                 
-            // Update link colors and styles
-            link.attr("stroke", d => d.type === 'white' ? '#60a5fa' : '#f87171')
-                .attr("stroke-opacity", 0.9);
+            // Ensure marker-end is applied to existing links
+            link.attr("marker-end", d => `url(#arrow-${d.type})`);
 
             simulation.nodes(nodes);
             simulation.force("link").links(filteredLinks);
