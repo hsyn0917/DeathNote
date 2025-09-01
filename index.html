@@ -70,35 +70,35 @@
             pointer-events: none;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
         }
-        .graph-zoom-controls {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .graph-zoom-btn {
-            width: 2.5rem;
-            height: 2.5rem;
-            background: rgba(79, 70, 229, 0.9);
+        .candidate-btn {
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background: rgba(71, 85, 105, 0.8);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            border-radius: 50%;
-            color: white;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            color: #cbd5e1;
+            border: 2px solid rgba(71, 85, 105, 0.3);
+            font-weight: 600;
+            font-size: 1rem;
+            min-width: 3rem;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             cursor: pointer;
         }
-        .graph-zoom-btn:hover {
-            background: rgba(67, 56, 202, 0.95);
+        .candidate-btn:hover {
+            background: rgba(79, 70, 229, 0.6);
+            border-color: rgba(79, 70, 229, 0.5);
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+        .candidate-btn.selected-l {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .candidate-btn.selected-kira {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-color: #ef4444;
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
         .link { stroke-opacity: 0.9; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3)); }
         .link.white { stroke: #60a5fa; stroke-width: 4px; }
@@ -427,6 +427,46 @@
             </div>
         </div>
 
+        <div id="section-memo" class="glass-card rounded-2xl shadow-2xl mb-8">
+            <div class="p-6">
+                <div class="section-header">
+                    <h2 class="text-2xl font-bold text-gray-100">簡易メモ</h2>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">L候補</h3>
+                        <div class="flex flex-wrap gap-2" id="l-candidates">
+                            <button class="candidate-btn" data-candidate="A" data-type="l">A</button>
+                            <button class="candidate-btn" data-candidate="B" data-type="l">B</button>
+                            <button class="candidate-btn" data-candidate="C" data-type="l">C</button>
+                            <button class="candidate-btn" data-candidate="D" data-type="l">D</button>
+                            <button class="candidate-btn" data-candidate="E" data-type="l">E</button>
+                            <button class="candidate-btn" data-candidate="F" data-type="l">F</button>
+                            <button class="candidate-btn" data-candidate="G" data-type="l">G</button>
+                            <button class="candidate-btn" data-candidate="H" data-type="l">H</button>
+                            <button class="candidate-btn" data-candidate="I" data-type="l">I</button>
+                            <button class="candidate-btn" data-candidate="J" data-type="l">J</button>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">キラ候補</h3>
+                        <div class="flex flex-wrap gap-2" id="kira-candidates">
+                            <button class="candidate-btn" data-candidate="A" data-type="kira">A</button>
+                            <button class="candidate-btn" data-candidate="B" data-type="kira">B</button>
+                            <button class="candidate-btn" data-candidate="C" data-type="kira">C</button>
+                            <button class="candidate-btn" data-candidate="D" data-type="kira">D</button>
+                            <button class="candidate-btn" data-candidate="E" data-type="kira">E</button>
+                            <button class="candidate-btn" data-candidate="F" data-type="kira">F</button>
+                            <button class="candidate-btn" data-candidate="G" data-type="kira">G</button>
+                            <button class="candidate-btn" data-candidate="H" data-type="kira">H</button>
+                            <button class="candidate-btn" data-candidate="I" data-type="kira">I</button>
+                            <button class="candidate-btn" data-candidate="J" data-type="kira">J</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="section-history" class="glass-card rounded-2xl shadow-2xl">
             <div class="p-6">
                 <div class="section-header">
@@ -472,6 +512,10 @@
             <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
             <span class="text-xs font-medium">捜査状況</span>
         </a>
+        <a href="#section-memo" class="text-center hover:text-white transition-colors">
+            <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+            <span class="text-xs font-medium">メモ</span>
+        </a>
         <a href="#section-history" class="text-center hover:text-white transition-colors">
              <svg class="w-6 h-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 20h5v-5M20 4h-5v5"></path></svg>
             <span class="text-xs font-medium">履歴</span>
@@ -492,6 +536,8 @@
         let displayDays = ['all'];
         let recordingDay = '1';
         let availableDays = ['1', '2', '3', '4', '5'];
+        let lCandidates = new Set();
+        let kiraCandidates = new Set();
 
         // Role definitions
         const roleNames = { 'Undetermined': '未確定', 'Kira-Believer': 'キラ信者', 'L': 'L', 'Investigator': '捜査員', 'Mello': 'メロ', 'Watari': 'ワタリ', 'Director': '局長',};
@@ -762,6 +808,32 @@
                     believerRoleRadios.forEach(r => r.disabled = true);
                 }
             });
+        });
+
+        // Memo functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('candidate-btn')) {
+                const candidate = e.target.dataset.candidate;
+                const type = e.target.dataset.type;
+                
+                if (type === 'l') {
+                    if (lCandidates.has(candidate)) {
+                        lCandidates.delete(candidate);
+                        e.target.classList.remove('selected-l');
+                    } else {
+                        lCandidates.add(candidate);
+                        e.target.classList.add('selected-l');
+                    }
+                } else if (type === 'kira') {
+                    if (kiraCandidates.has(candidate)) {
+                        kiraCandidates.delete(candidate);
+                        e.target.classList.remove('selected-kira');
+                    } else {
+                        kiraCandidates.add(candidate);
+                        e.target.classList.add('selected-kira');
+                    }
+                }
+            }
         });
 
         function addLink(type) {
