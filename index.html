@@ -524,6 +524,9 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // Ensure page starts at the top
+        window.scrollTo(0, 0);
+        
         // Data store
         const playerIds = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
         const nodes = playerIds.map(id => ({ id, name: id, role: 'Undetermined' }));
